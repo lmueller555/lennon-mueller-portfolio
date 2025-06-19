@@ -3,8 +3,25 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
 from typing import Dict
+import json
+import os
 
 app = FastAPI()
+
+# Load dashboard data if available
+base_dir = os.path.dirname(__file__)
+metrics_info = {}
+combos_info = {}
+try:
+    with open(os.path.join(base_dir, "metrics.json")) as f:
+        metrics_info = json.load(f)
+except FileNotFoundError:
+    pass
+try:
+    with open(os.path.join(base_dir, "combos.json")) as f:
+        combos_info = json.load(f)
+except FileNotFoundError:
+    pass
 
 # Allow frontend JavaScript running on http://localhost:8000 to call this backend
 app.add_middleware(
@@ -51,6 +68,24 @@ async def predict_churn(data: ChurnInput):
         "SeniorCitizen": 0.05,
     }
     return {"probability": probability, "contributions": contributions}
+
+
+@app.get("/metrics")
+async def get_metrics():
+    """Return stored model performance metrics."""
+    return metrics_info
+
+
+@app.get("/dashboard")
+async def dashboard_data():
+    """Return data used by the churn dashboard."""
+    return {
+        "metrics": metrics_info,
+        "top_combos": combos_info.get("top_combos", []),
+        "bottom_combos": combos_info.get("bottom_combos", []),
+        "total_customers": combos_info.get("total_customers"),
+        "churn_rate": combos_info.get("churn_rate"),
+    }
 
 
 # Serve the HTML and other static assets in the project directory
