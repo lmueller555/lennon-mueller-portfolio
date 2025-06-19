@@ -20,20 +20,200 @@
             opacity: 0.5;
             z-index: -1;
         }
-
         h1.title {
             color: blue;
             text-align: center;
             text-decoration: underline;
         }
+        #controls {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        #controls label {
+            margin-right: 15px;
+        }
+        #results {
+            text-align: center;
+            margin-top: 20px;
+        }
+        canvas {
+            display: block;
+            margin: 20px auto;
+            border: 1px solid #ddd;
+        }
     </style>
 </head>
 <body>
     <h1 class="title">Lennon Mueller</h1>
-    <iframe
-        src="https://projectm-lszw3klntdm6vbuzw7glv7.streamlit.app/"
-        style="width: 100%; height: 800px; border: none;"
-        title="Streamlit App">
-    </iframe>
+    <div id="controls">
+        <label>Start date <input type="date" id="startDate"></label>
+        <label>End date <input type="date" id="endDate"></label>
+        <label>Initial Investment Amount <input type="number" id="initialInvestment" value="50000" step="1000" min="0"></label>
+        <label>Monthly Contribution Amount <input type="number" id="monthlyContribution" value="3000" step="100" min="0"></label>
+        <button id="runBtn">Run Simulation</button>
+    </div>
+    <progress id="progress" value="0" max="1" style="width:100%; display:none;"></progress>
+    <div id="status" style="text-align:center;"></div>
+    <div id="results"></div>
+    <canvas id="chart" width="800" height="400"></canvas>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const dataset = [];
+    let dateIndex = [];
+
+    fetch('Updated_Dataset_with_Signals_Ranked.csv')
+        .then(response => response.text())
+        .then(text => {
+            const lines = text.trim().split('\n');
+            const headers = lines[0].split(',');
+            const dateIdx = headers.indexOf('Date');
+            const closeIdx = headers.indexOf('Close/Last');
+            const openIdx = headers.indexOf('Open');
+            const companyIdx = headers.indexOf('Company');
+            const buyIdx = headers.indexOf('30 Day Buy Signal');
+            for (let i = 1; i < lines.length; i++) {
+                const cols = lines[i].split(',');
+                dataset.push({
+                    date: cols[dateIdx],
+                    close: parseFloat(cols[closeIdx]),
+                    open: parseFloat(cols[openIdx]),
+                    company: cols[companyIdx],
+                    buy: parseInt(cols[buyIdx]) || 0
+                });
+            }
+            dataset.sort((a,b) => new Date(a.date) - new Date(b.date));
+            dateIndex = Array.from(new Set(dataset.map(r => r.date)));
+            const startInput = document.getElementById('startDate');
+            const endInput = document.getElementById('endDate');
+            startInput.value = dateIndex[0];
+            startInput.min = dateIndex[0];
+            startInput.max = dateIndex[dateIndex.length-1];
+            endInput.value = dateIndex[dateIndex.length-1];
+            endInput.min = dateIndex[0];
+            endInput.max = dateIndex[dateIndex.length-1];
+        });
+
+    document.getElementById('runBtn').addEventListener('click', function(){
+        if (dataset.length === 0) return;
+
+        const startDate = new Date(document.getElementById('startDate').value);
+        const endDate = new Date(document.getElementById('endDate').value);
+        const initialInvestment = parseFloat(document.getElementById('initialInvestment').value);
+        const monthlyContribution = parseFloat(document.getElementById('monthlyContribution').value);
+
+        const dfFiltered = dataset.filter(r => {
+            const d = new Date(r.date);
+            return d >= startDate && d <= endDate;
+        });
+        const dates = Array.from(new Set(dfFiltered.map(r => r.date)));
+        let cashAvailable = initialInvestment;
+        const portfolio = [];
+        const trades = [];
+        const portfolioValues = [];
+        let contributionCounter = 0;
+        const progress = document.getElementById('progress');
+        const status = document.getElementById('status');
+        progress.style.display = 'block';
+        progress.value = 0;
+        status.textContent = '';
+
+        function portfolioValue(currentDate) {
+            let value = 0;
+            for (const position of portfolio) {
+                const current = dfFiltered.find(r => r.date === currentDate && r.company === position.company);
+                if (current) {
+                    value += position.shares * current.close;
+                }
+            }
+            return value;
+        }
+
+        for (let i = 0; i < dates.length; i++) {
+            const currentDate = dates[i];
+            progress.value = (i + 1) / dates.length;
+            status.textContent = `Simulating trading day ${i + 1} of ${dates.length} (${((i + 1) / dates.length * 100).toFixed(2)}%)`;
+            contributionCounter++;
+            if (contributionCounter === 22) {
+                cashAvailable += monthlyContribution;
+                contributionCounter = 0;
+            }
+            const dailyData = dfFiltered.filter(r => r.date === currentDate);
+            for (const row of dailyData) {
+                if (row.buy === 1 && cashAvailable > 0 && i + 1 < dates.length) {
+                    const nextDay = dates[i + 1];
+                    const nextData = dfFiltered.find(r => r.date === nextDay && r.company === row.company);
+                    if (nextData) {
+                        const maxShares = (cashAvailable * 0.5) / nextData.open;
+                        if (maxShares >= 1) {
+                            const investAmount = maxShares * nextData.open;
+                            cashAvailable -= investAmount;
+                            const sellIndex = i + 32 < dates.length ? i + 32 : dates.length - 1;
+                            portfolio.push({
+                                company: row.company,
+                                sell_date: dates[sellIndex],
+                                shares: investAmount / nextData.open,
+                                buy_price: nextData.open
+                            });
+                        }
+                    }
+                }
+            }
+            for (let j = portfolio.length - 1; j >= 0; j--) {
+                const pos = portfolio[j];
+                if (currentDate === pos.sell_date) {
+                    const sellData = dfFiltered.find(r => r.date === pos.sell_date && r.company === pos.company);
+                    if (sellData) {
+                        const sellPrice = sellData.close;
+                        const profit = (sellPrice - pos.buy_price) * pos.shares;
+                        cashAvailable += pos.shares * sellPrice;
+                        portfolio.splice(j, 1);
+                        trades.push(profit > 0);
+                    }
+                }
+            }
+            const pValue = portfolioValue(currentDate);
+            portfolioValues.push({date: currentDate, value: cashAvailable + pValue});
+        }
+        progress.style.display = 'none';
+        status.textContent = '';
+
+        const totalContributions = initialInvestment + monthlyContribution * Math.floor(dates.length / 22);
+        const lastDate = dates[dates.length - 1];
+        const finalValue = cashAvailable + portfolioValue(lastDate);
+        const roi = ((finalValue - totalContributions) / totalContributions) * 100;
+        const winRate = trades.length ? (trades.filter(t => t).length / trades.length) * 100 : 0;
+
+        const results = document.getElementById('results');
+        results.innerHTML = `
+            <p>Final Portfolio Value: $${finalValue.toFixed(2)}</p>
+            <p>Total Contributions: $${totalContributions.toFixed(2)}</p>
+            <p>ROI: ${roi.toFixed(2)}%</p>
+            <p>Trading Win Rate: ${winRate.toFixed(2)}%</p>
+        `;
+        drawChart(portfolioValues);
+    });
+
+    function drawChart(points) {
+        const canvas = document.getElementById('chart');
+        const ctx = canvas.getContext('2d');
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        if (points.length === 0) return;
+        const values = points.map(p => p.value);
+        const maxVal = Math.max(...values);
+        const minVal = Math.min(...values);
+        const padding = 40;
+        const xScale = (canvas.width - padding * 2) / (points.length - 1 || 1);
+        const yScale = (canvas.height - padding * 2) / (maxVal - minVal || 1);
+        ctx.beginPath();
+        ctx.strokeStyle = 'blue';
+        ctx.moveTo(padding, canvas.height - padding - (values[0] - minVal) * yScale);
+        for (let i = 1; i < points.length; i++) {
+            ctx.lineTo(padding + i * xScale, canvas.height - padding - (values[i] - minVal) * yScale);
+        }
+        ctx.stroke();
+    }
+});
+</script>
 </body>
 </html>
