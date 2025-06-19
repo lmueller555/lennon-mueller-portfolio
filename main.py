@@ -1,5 +1,6 @@
-from fastapi import FastAPI, Request
+from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
 from typing import Dict
 
@@ -13,6 +14,7 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
 
 class ChurnInput(BaseModel):
     gender: str
@@ -35,6 +37,7 @@ class ChurnInput(BaseModel):
     MonthlyCharges: float
     TotalCharges: float
 
+
 @app.post("/predict")
 async def predict_churn(data: ChurnInput):
     # TODO: Load your real model and pipeline here
@@ -45,6 +48,10 @@ async def predict_churn(data: ChurnInput):
         "Tenure": 0.2,
         "MonthlyCharges": 0.15,
         "InternetService": 0.07,
-        "SeniorCitizen": 0.05
+        "SeniorCitizen": 0.05,
     }
     return {"probability": probability, "contributions": contributions}
+
+
+# Serve the HTML and other static assets in the project directory
+app.mount("/", StaticFiles(directory=".", html=True), name="static")
