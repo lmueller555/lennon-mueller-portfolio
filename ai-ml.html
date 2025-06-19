@@ -53,7 +53,15 @@
         label { display:block; margin:5px 0; }
         input, select { width:200px; }
         #result { margin-top:20px; }
-        canvas { max-width:400px; margin:20px auto; display:block; }
+        canvas {
+            width: 100%;
+            max-width: 800px;
+            margin: 20px auto;
+            display: block;
+        }
+        #summary, #metrics {
+            margin: 10px 0;
+        }
     </style>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
@@ -67,7 +75,7 @@
     <div id="mlContainer">
         <h2>Customer Churn Dashboard</h2>
         <p id="summary"></p>
-        <div id="metrics"></div>
+        <p id="metrics"></p>
         <canvas id="topCombosChart"></canvas>
         <canvas id="lowCombosChart"></canvas>
     </div>
@@ -84,12 +92,36 @@ async function loadDashboard(){
     const topCtx = document.getElementById('topCombosChart').getContext('2d');
     const topLabels = data.top_combos.map(c=>`${c.features[0]}=${c.values[0]}\n${c.features[1]}=${c.values[1]}`);
     const topRates = data.top_combos.map(c=>c.rate*100);
-    new Chart(topCtx,{type:'bar',data:{labels:topLabels,datasets:[{label:'Churn %',data:topRates,backgroundColor:'red'}]},options:{scales:{y:{beginAtZero:true,max:100}}}});
+    new Chart(topCtx,{
+        type:'bar',
+        data:{
+            labels:topLabels,
+            datasets:[{label:'Churn %',data:topRates,backgroundColor:'red'}]
+        },
+        options:{
+            scales:{
+                y:{beginAtZero:true,max:100},
+                x:{ticks:{maxRotation:0,minRotation:0,autoSkip:false}}
+            }
+        }
+    });
 
     const lowCtx = document.getElementById('lowCombosChart').getContext('2d');
     const lowLabels = data.bottom_combos.map(c=>`${c.features[0]}=${c.values[0]}\n${c.features[1]}=${c.values[1]}`);
     const lowRates = data.bottom_combos.map(c=>c.rate*100);
-    new Chart(lowCtx,{type:'bar',data:{labels:lowLabels,datasets:[{label:'Churn %',data:lowRates,backgroundColor:'green'}]},options:{scales:{y:{beginAtZero:true,max:100}}}});
+    new Chart(lowCtx,{
+        type:'bar',
+        data:{
+            labels:lowLabels,
+            datasets:[{label:'Churn %',data:lowRates,backgroundColor:'green'}]
+        },
+        options:{
+            scales:{
+                y:{beginAtZero:true,max:100},
+                x:{ticks:{maxRotation:0,minRotation:0,autoSkip:false}}
+            }
+        }
+    });
 }
 loadDashboard();
 </script>
