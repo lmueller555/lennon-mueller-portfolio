@@ -15,6 +15,11 @@ try:
         metrics_info = json.load(f)
 except FileNotFoundError:
     metrics_info = {}
+try:
+    with open('combos.json') as f:
+        combos_info = json.load(f)
+except FileNotFoundError:
+    combos_info = {}
 
 # SHAP explainer with simple background
 dummy = np.zeros((1, model.input_shape[1]))
@@ -34,3 +39,14 @@ def predict(features: dict):
 @app.get('/metrics')
 def metrics():
     return metrics_info
+
+
+@app.get('/dashboard')
+def dashboard_data():
+    return {
+        'metrics': metrics_info,
+        'top_combos': combos_info.get('top_combos', []),
+        'bottom_combos': combos_info.get('bottom_combos', []),
+        'total_customers': combos_info.get('total_customers'),
+        'churn_rate': combos_info.get('churn_rate')
+    }
