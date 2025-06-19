@@ -65,144 +65,33 @@
         <a href="ai-ml.html">AI/ML</a>
     </nav>
     <div id="mlContainer">
-        <form id="churnForm">
-            <label>Gender
-                <select name="gender" id="gender">
-                    <option value="Male">Male</option>
-                    <option value="Female">Female</option>
-                </select>
-            </label>
-            <label>Senior Citizen
-                <select name="SeniorCitizen" id="SeniorCitizen">
-                    <option value="0">No</option>
-                    <option value="1">Yes</option>
-                </select>
-            </label>
-            <label>Partner
-                <select name="Partner" id="Partner">
-                    <option value="Yes">Yes</option>
-                    <option value="No">No</option>
-                </select>
-            </label>
-            <label>Dependents
-                <select name="Dependents" id="Dependents">
-                    <option value="Yes">Yes</option>
-                    <option value="No">No</option>
-                </select>
-            </label>
-            <label>Tenure <input type="number" name="tenure" id="tenure" value="1" min="0"></label>
-            <label>Phone Service
-                <select name="PhoneService" id="PhoneService">
-                    <option value="Yes">Yes</option>
-                    <option value="No">No</option>
-                </select>
-            </label>
-            <label>Multiple Lines
-                <select name="MultipleLines" id="MultipleLines">
-                    <option value="No">No</option>
-                    <option value="Yes">Yes</option>
-                    <option value="No phone service">No phone service</option>
-                </select>
-            </label>
-            <label>Internet Service
-                <select name="InternetService" id="InternetService">
-                    <option value="DSL">DSL</option>
-                    <option value="Fiber optic">Fiber optic</option>
-                    <option value="No">No</option>
-                </select>
-            </label>
-            <label>Online Security
-                <select name="OnlineSecurity" id="OnlineSecurity">
-                    <option value="Yes">Yes</option>
-                    <option value="No">No</option>
-                    <option value="No internet service">No internet service</option>
-                </select>
-            </label>
-            <label>Online Backup
-                <select name="OnlineBackup" id="OnlineBackup">
-                    <option value="Yes">Yes</option>
-                    <option value="No">No</option>
-                    <option value="No internet service">No internet service</option>
-                </select>
-            </label>
-            <label>Device Protection
-                <select name="DeviceProtection" id="DeviceProtection">
-                    <option value="Yes">Yes</option>
-                    <option value="No">No</option>
-                    <option value="No internet service">No internet service</option>
-                </select>
-            </label>
-            <label>Tech Support
-                <select name="TechSupport" id="TechSupport">
-                    <option value="Yes">Yes</option>
-                    <option value="No">No</option>
-                    <option value="No internet service">No internet service</option>
-                </select>
-            </label>
-            <label>Streaming TV
-                <select name="StreamingTV" id="StreamingTV">
-                    <option value="Yes">Yes</option>
-                    <option value="No">No</option>
-                    <option value="No internet service">No internet service</option>
-                </select>
-            </label>
-            <label>Streaming Movies
-                <select name="StreamingMovies" id="StreamingMovies">
-                    <option value="Yes">Yes</option>
-                    <option value="No">No</option>
-                    <option value="No internet service">No internet service</option>
-                </select>
-            </label>
-            <label>Contract
-                <select name="Contract" id="Contract">
-                    <option value="Month-to-month">Month-to-month</option>
-                    <option value="One year">One year</option>
-                    <option value="Two year">Two year</option>
-                </select>
-            </label>
-            <label>Paperless Billing
-                <select name="PaperlessBilling" id="PaperlessBilling">
-                    <option value="Yes">Yes</option>
-                    <option value="No">No</option>
-                </select>
-            </label>
-            <label>Payment Method
-                <select name="PaymentMethod" id="PaymentMethod">
-                    <option value="Electronic check">Electronic check</option>
-                    <option value="Mailed check">Mailed check</option>
-                    <option value="Bank transfer (automatic)">Bank transfer (automatic)</option>
-                    <option value="Credit card (automatic)">Credit card (automatic)</option>
-                </select>
-            </label>
-            <label>Monthly Charges <input type="number" step="0.1" name="MonthlyCharges" id="MonthlyCharges" value="0"></label>
-            <label>Total Charges <input type="number" step="0.1" name="TotalCharges" id="TotalCharges" value="0"></label>
-            <button type="submit">Predict Churn</button>
-        </form>
-        <div id="result"></div>
-        <canvas id="contribChart"></canvas>
+        <h2>Customer Churn Dashboard</h2>
+        <p id="summary"></p>
+        <div id="metrics"></div>
+        <canvas id="topCombosChart"></canvas>
+        <canvas id="lowCombosChart"></canvas>
     </div>
 <script>
-document.getElementById('churnForm').addEventListener('submit', async function(e){
-    e.preventDefault();
-    const form = e.target;
-    const data = {};
-    new FormData(form).forEach((v,k)=>data[k]=v);
-    const response = await fetch('http://localhost:5000/predict', {
-        method: 'POST',
-        headers: {'Content-Type': 'application/json'},
-        body: JSON.stringify(data)
-    });
-    const res = await response.json();
-    document.getElementById('result').innerText = 'Churn Probability: ' + (res.probability*100).toFixed(2) + '%';
-    const ctx = document.getElementById('contribChart').getContext('2d');
-    const labels = Object.keys(res.contributions);
-    const values = Object.values(res.contributions);
-    new Chart(ctx, {
-        type:'bar',
-        data:{ labels: labels, datasets:[{label:'SHAP', data:values, backgroundColor:'blue'}]},
-        options:{ scales:{ y:{ beginAtZero:true } } }
-    });
-});
+async function loadDashboard(){
+    const res = await fetch('http://localhost:5000/dashboard');
+    const data = await res.json();
+    document.getElementById('summary').innerText =
+        `Dataset: ${data.total_customers} customers, Churn Rate: ${(data.churn_rate*100).toFixed(1)}%`;
+    const m = data.metrics;
+    document.getElementById('metrics').innerText =
+        `Model AUC: ${m.auc.toFixed(3)} | Precision: ${m.precision.toFixed(3)} | Recall: ${m.recall.toFixed(3)}`;
+
+    const topCtx = document.getElementById('topCombosChart').getContext('2d');
+    const topLabels = data.top_combos.map(c=>`${c.features[0]}=${c.values[0]}\n${c.features[1]}=${c.values[1]}`);
+    const topRates = data.top_combos.map(c=>c.rate*100);
+    new Chart(topCtx,{type:'bar',data:{labels:topLabels,datasets:[{label:'Churn %',data:topRates,backgroundColor:'red'}]},options:{scales:{y:{beginAtZero:true,max:100}}}});
+
+    const lowCtx = document.getElementById('lowCombosChart').getContext('2d');
+    const lowLabels = data.bottom_combos.map(c=>`${c.features[0]}=${c.values[0]}\n${c.features[1]}=${c.values[1]}`);
+    const lowRates = data.bottom_combos.map(c=>c.rate*100);
+    new Chart(lowCtx,{type:'bar',data:{labels:lowLabels,datasets:[{label:'Churn %',data:lowRates,backgroundColor:'green'}]},options:{scales:{y:{beginAtZero:true,max:100}}}});
+}
+loadDashboard();
 </script>
 </body>
 </html>
