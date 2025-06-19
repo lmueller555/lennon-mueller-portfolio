@@ -1,0 +1,128 @@
+{
+  "top_combos": [
+    {
+      "features": [
+        "tenure_bin",
+        "charges_bin"
+      ],
+      "values": [
+        "0-12",
+        "70+"
+      ],
+      "rate": 0.6883273164861613,
+      "count": 831
+    },
+    {
+      "features": [
+        "InternetService",
+        "PaymentMethod"
+      ],
+      "values": [
+        "Fiber optic",
+        "Electronic check"
+      ],
+      "rate": 0.5322884012539185,
+      "count": 1595
+    },
+    {
+      "features": [
+        "Contract",
+        "TechSupport"
+      ],
+      "values": [
+        "Month-to-month",
+        "No"
+      ],
+      "rate": 0.503731343283582,
+      "count": 2680
+    },
+    {
+      "features": [
+        "tenure_bin",
+        "charges_bin"
+      ],
+      "values": [
+        "12-24",
+        "70+"
+      ],
+      "rate": 0.4711934156378601,
+      "count": 486
+    },
+    {
+      "features": [
+        "tenure_bin",
+        "charges_bin"
+      ],
+      "values": [
+        "0-12",
+        "35-70"
+      ],
+      "rate": 0.4350547730829421,
+      "count": 639
+    }
+  ],
+  "bottom_combos": [
+    {
+      "features": [
+        "Contract",
+        "TechSupport"
+      ],
+      "values": [
+        "Two year",
+        "No internet service"
+      ],
+      "rate": 0.007836990595611285,
+      "count": 638
+    },
+    {
+      "features": [
+        "tenure_bin",
+        "charges_bin"
+      ],
+      "values": [
+        "48+",
+        "<35"
+      ],
+      "rate": 0.014989293361884369,
+      "count": 467
+    },
+    {
+      "features": [
+        "Contract",
+        "TechSupport"
+      ],
+      "values": [
+        "One year",
+        "No internet service"
+      ],
+      "rate": 0.024725274725274724,
+      "count": 364
+    },
+    {
+      "features": [
+        "InternetService",
+        "PaymentMethod"
+      ],
+      "values": [
+        "No",
+        "Credit card (automatic)"
+      ],
+      "rate": 0.027190332326283987,
+      "count": 331
+    },
+    {
+      "features": [
+        "Contract",
+        "TechSupport"
+      ],
+      "values": [
+        "Two year",
+        "Yes"
+      ],
+      "rate": 0.03532277710109622,
+      "count": 821
+    }
+  ],
+  "total_customers": 7043,
+  "churn_rate": 0.2653698707936959
+}
