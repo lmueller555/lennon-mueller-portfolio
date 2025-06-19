@@ -118,7 +118,7 @@ document.addEventListener('DOMContentLoaded', function() {
             endInput.max = dateIndex[dateIndex.length-1];
         });
 
-    document.getElementById('runBtn').addEventListener('click', function(){
+    async function runSimulation() {
         if (dataset.length === 0) return;
 
         const startDate = new Date(document.getElementById('startDate').value);
@@ -198,6 +198,7 @@ document.addEventListener('DOMContentLoaded', function() {
             }
             const pValue = portfolioValue(currentDate);
             portfolioValues.push({date: currentDate, value: cashAvailable + pValue});
+            await new Promise(r => setTimeout(r, 0));
         }
         progress.style.display = 'none';
         status.textContent = '';
@@ -216,7 +217,9 @@ document.addEventListener('DOMContentLoaded', function() {
             <p>Trading Win Rate: ${winRate.toFixed(2)}%</p>
         `;
         drawChart(portfolioValues);
-    });
+    }
+
+    document.getElementById('runBtn').addEventListener('click', runSimulation);
 
     function drawChart(points) {
         const canvas = document.getElementById('chart');
