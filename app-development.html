@@ -59,6 +59,16 @@
             max-width: 1000px;
             border-radius: 8px;
         }
+        .visual {
+            background: rgba(0,0,0,0.6);
+            color: white;
+            padding: 20px;
+            margin: 20px auto;
+            width: 90%;
+            max-width: 800px;
+            border-radius: 8px;
+            text-align: center;
+        }
     </style>
 </head>
 <body>
@@ -77,8 +87,9 @@
     </div>
     <progress id="progress" value="0" max="1" style="width:100%; display:none;"></progress>
     <div id="status" style="text-align:center;"></div>
-    <div id="results"></div>
     <canvas id="chart" width="800" height="400"></canvas>
+    <div id="results" class="visual"></div>
+    <div id="additionalVisuals" class="visual"></div>
 
 </div>
 <script>
@@ -134,6 +145,7 @@ document.addEventListener('DOMContentLoaded', function() {
         let cashAvailable = initialInvestment;
         const portfolio = [];
         const trades = [];
+        const tradeDetails = [];
         const portfolioValues = [];
         let contributionCounter = 0;
         const progress = document.getElementById('progress');
@@ -193,6 +205,7 @@ document.addEventListener('DOMContentLoaded', function() {
                         cashAvailable += pos.shares * sellPrice;
                         portfolio.splice(j, 1);
                         trades.push(profit > 0);
+                        tradeDetails.push({company: pos.company, profit});
                     }
                 }
             }
@@ -209,14 +222,35 @@ document.addEventListener('DOMContentLoaded', function() {
         const roi = ((finalValue - totalContributions) / totalContributions) * 100;
         const winRate = trades.length ? (trades.filter(t => t).length / trades.length) * 100 : 0;
 
+        const profitsByCompany = {};
+        let totalProfit = 0;
+        for (const t of tradeDetails) {
+            profitsByCompany[t.company] = (profitsByCompany[t.company] || 0) + t.profit;
+            totalProfit += t.profit;
+        }
+        const sortedCompanies = Object.entries(profitsByCompany).sort((a,b) => b[1] - a[1]);
+        const best = sortedCompanies[0];
+        const worst = sortedCompanies[sortedCompanies.length - 1];
+        const totalTrades = tradeDetails.length;
+        const avgProfit = totalTrades ? totalProfit / totalTrades : 0;
+
         const results = document.getElementById('results');
         results.innerHTML = `
             <p>Final Portfolio Value: $${finalValue.toFixed(2)}</p>
             <p>Total Contributions: $${totalContributions.toFixed(2)}</p>
             <p>ROI: ${roi.toFixed(2)}%</p>
             <p>Trading Win Rate: ${winRate.toFixed(2)}%</p>
+            <p>Total Trades: ${totalTrades}</p>
+            <p>Average Profit per Trade: $${avgProfit.toFixed(2)}</p>
+            <p>Best Stock: ${best ? best[0] : 'N/A'} ($${best ? best[1].toFixed(2) : '0'})</p>
+            <p>Worst Stock: ${worst ? worst[0] : 'N/A'} ($${worst ? worst[1].toFixed(2) : '0'})</p>
         `;
+
+        const addDiv = document.getElementById('additionalVisuals');
+        addDiv.innerHTML = '<canvas id="profitChart" width="800" height="400"></canvas>';
+
         drawChart(portfolioValues);
+        drawProfitChart(profitsByCompany);
     }
 
     document.getElementById('runBtn').addEventListener('click', runSimulation);
@@ -249,7 +283,23 @@ document.addEventListener('DOMContentLoaded', function() {
         }
         ctx.stroke();
 
+        const xTicks = 5;
+        const yTicks = 5;
         ctx.fillStyle = 'white';
+        ctx.textAlign = 'center';
+        ctx.font = '12px sans-serif';
+        for (let i = 0; i <= xTicks; i++) {
+            const idx = Math.floor(i * (points.length - 1) / xTicks);
+            const x = padding + idx * xScale;
+            ctx.fillText(points[idx].date, x, canvas.height - padding + 15);
+        }
+        ctx.textAlign = 'right';
+        for (let i = 0; i <= yTicks; i++) {
+            const val = minVal + i * (maxVal - minVal) / yTicks;
+            const y = canvas.height - padding - (val - minVal) * yScale;
+            ctx.fillText('$' + val.toFixed(0), padding - 5, y + 4);
+        }
+
         ctx.textAlign = 'center';
         ctx.font = '14px sans-serif';
         ctx.fillText('Date', canvas.width / 2, canvas.height - 10);
@@ -258,6 +308,41 @@ document.addEventListener('DOMContentLoaded', function() {
         ctx.rotate(-Math.PI / 2);
         ctx.fillText('Portfolio Value ($)', 0, 0);
         ctx.restore();
+    }
+
+    function drawProfitChart(profits) {
+        const canvas = document.getElementById('profitChart');
+        if (!canvas) return;
+        const ctx = canvas.getContext('2d');
+        ctx.clearRect(0,0,canvas.width,canvas.height);
+        const entries = Object.entries(profits).sort((a,b)=>b[1]-a[1]).slice(0,5);
+        if (entries.length === 0) return;
+        const padding = 40;
+        const barWidth = (canvas.width - padding * 2) / entries.length;
+        const values = entries.map(e => e[1]);
+        const maxVal = Math.max(...values);
+        for (let i = 0; i < entries.length; i++) {
+            const value = entries[i][1];
+            const height = (canvas.height - padding * 2) * (value / maxVal);
+            const x = padding + i * barWidth + barWidth * 0.1;
+            const y = canvas.height - padding - height;
+            const w = barWidth * 0.8;
+            ctx.fillStyle = 'blue';
+            ctx.fillRect(x, y, w, height);
+            ctx.fillStyle = 'white';
+            ctx.textAlign = 'center';
+            ctx.fillText(entries[i][0], x + w/2, canvas.height - padding + 15);
+            ctx.fillText('$' + value.toFixed(2), x + w/2, y - 5);
+        }
+        ctx.strokeStyle = 'white';
+        ctx.beginPath();
+        ctx.moveTo(padding, canvas.height - padding);
+        ctx.lineTo(padding, padding);
+        ctx.lineTo(canvas.width - padding, canvas.height - padding);
+        ctx.stroke();
+        ctx.fillStyle = 'white';
+        ctx.textAlign = 'center';
+        ctx.fillText('Top Profits by Stock', canvas.width/2, 15);
     }
 });
 </script>
