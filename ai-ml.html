@@ -187,7 +187,7 @@ document.getElementById('churnForm').addEventListener('submit', async function(e
     const form = e.target;
     const data = {};
     new FormData(form).forEach((v,k)=>data[k]=v);
-    const response = await fetch('http://localhost:8000/predict', {
+    const response = await fetch('http://localhost:5000/predict', {
         method: 'POST',
         headers: {'Content-Type': 'application/json'},
         body: JSON.stringify(data)
