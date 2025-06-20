@@ -76,6 +76,10 @@
             max-width: 1000px;
             border-radius: 8px;
         }
+        h2.sim-title {
+            text-align: center;
+            margin-top: 0;
+        }
         .visual {
             background: rgba(0,0,0,0.6);
             color: white;
@@ -96,6 +100,7 @@
         <a href="ai-ml.html">AI/ML</a>
     </nav>
 <div id="appContainer">
+    <h2 class="sim-title">Investing Simulation</h2>
     <div id="explainer">
         <p>This tool simulates a simple trading strategy that buys stocks on a
         generated 30&nbsp;day signal and sells them roughly a month later. Adjust the
@@ -121,8 +126,8 @@
             <progress id="progress" value="0" max="1" style="width:100%; display:none;"></progress>
             <div id="status" style="text-align:center;"></div>
             <canvas id="chart" width="800" height="400"></canvas>
-            <div id="results" class="visual"></div>
-            <div id="additionalVisuals" class="visual"></div>
+            <div id="results" class="visual">Run the simulation to see results here.</div>
+            <div id="additionalVisuals" class="visual">Additional visuals will appear here after running the simulation.</div>
         </div>
     </div>
 </div>
@@ -130,6 +135,18 @@
 document.addEventListener('DOMContentLoaded', function() {
     const dataset = [];
     let dateIndex = [];
+
+    function showPlaceholder() {
+        const canvas = document.getElementById('chart');
+        const ctx = canvas.getContext('2d');
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        ctx.fillStyle = 'white';
+        ctx.textAlign = 'center';
+        ctx.font = '16px sans-serif';
+        ctx.fillText('Run the simulation to see the portfolio chart here.', canvas.width/2, canvas.height/2);
+    }
+
+    showPlaceholder();
 
     fetch('Updated_Dataset_with_Signals_Ranked.csv')
         .then(response => response.text())
