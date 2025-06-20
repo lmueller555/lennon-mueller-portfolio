@@ -101,6 +101,13 @@
         generated 30&nbsp;day signal and sells them roughly a month later. Adjust the
         dates and investment amounts on the left and click <strong>Run
         Simulation</strong> to see how the portfolio would have performed.</p>
+        <p>The buy signal is derived from historical runs where a company's
+        stock price climbed at least 30% within 30&nbsp;days. The financial
+        metrics from the first day of each run are averaged into a single
+        "growth metric" for that company. When the current metrics are within
+        a chosen Euclidean distance of the growth metric, the model assumes a
+        new growth period may be starting and triggers a buy. Every purchase is
+        automatically sold after 30&nbsp;days.</p>
     </div>
     <div id="mainContent">
         <div id="controls">
