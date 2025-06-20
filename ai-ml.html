@@ -61,6 +61,13 @@
             margin: 70px auto;
             display: block;
         }
+        h2 {
+            text-align: center;
+            color: white;
+        }
+        #explanation {
+            margin: 10px 0;
+        }
         #summary, #highestRule {
             margin: 10px 0;
         }
@@ -76,6 +83,11 @@
     </nav>
     <div id="mlContainer">
         <h2>Customer Churn Dashboard</h2>
+        <p id="explanation">
+            This dashboard analyzes the <em>Telco Customer Churn</em> dataset using a
+            neural network model. It highlights feature combinations that are most
+            and least associated with customer churn based on training results.
+        </p>
         <p id="summary"></p>
         <p id="highestRule"></p>
         <canvas id="topCombosChart"></canvas>
@@ -100,8 +112,11 @@ async function loadDashboard(){
         },
         options:{
             scales:{
-                y:{beginAtZero:true,max:100},
-                x:{ticks:{maxRotation:45,minRotation:45,autoSkip:false}}
+                y:{beginAtZero:true,max:100,ticks:{color:'white'}},
+                x:{ticks:{maxRotation:45,minRotation:45,autoSkip:false,color:'white'}}
+            },
+            plugins:{
+                legend:{labels:{color:'white'}}
             }
         }
     });
@@ -117,8 +132,11 @@ async function loadDashboard(){
         },
         options:{
             scales:{
-                y:{beginAtZero:true,max:100},
-                x:{ticks:{maxRotation:45,minRotation:45,autoSkip:false}}
+                y:{beginAtZero:true,max:100,ticks:{color:'white'}},
+                x:{ticks:{maxRotation:45,minRotation:45,autoSkip:false,color:'white'}}
+            },
+            plugins:{
+                legend:{labels:{color:'white'}}
             }
         }
     });
