@@ -59,7 +59,7 @@
             margin: 70px auto;
             display: block;
         }
-        #summary, #metrics {
+        #summary, #highestRule {
             margin: 10px 0;
         }
     </style>
@@ -75,7 +75,7 @@
     <div id="mlContainer">
         <h2>Customer Churn Dashboard</h2>
         <p id="summary"></p>
-        <p id="metrics"></p>
+        <p id="highestRule"></p>
         <canvas id="topCombosChart"></canvas>
         <canvas id="lowCombosChart"></canvas>
     </div>
@@ -85,9 +85,7 @@ async function loadDashboard(){
     const data = await res.json();
     document.getElementById('summary').innerText =
         `Dataset: ${data.total_customers} customers, Churn Rate: ${(data.churn_rate*100).toFixed(1)}%`;
-    const m = data.metrics;
-    document.getElementById('metrics').innerText =
-        `Model AUC: ${m.auc.toFixed(3)} | Precision: ${m.precision.toFixed(3)} | Recall: ${m.recall.toFixed(3)}`;
+    document.getElementById('highestRule').innerText = data.highest_rule;
 
     const topCtx = document.getElementById('topCombosChart').getContext('2d');
     const topLabels = data.top_combos.map(c=>`${c.features[0]}=${c.values[0]}\n${c.features[1]}=${c.values[1]}`);

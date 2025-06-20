@@ -80,11 +80,11 @@ async def get_metrics():
 async def dashboard_data():
     """Return data used by the churn dashboard."""
     return {
-        "metrics": metrics_info,
         "top_combos": combos_info.get("top_combos", []),
         "bottom_combos": combos_info.get("bottom_combos", []),
         "total_customers": combos_info.get("total_customers"),
         "churn_rate": combos_info.get("churn_rate"),
+        "highest_rule": combos_info.get("highest_rule"),
     }
 
 

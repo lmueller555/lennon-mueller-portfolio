@@ -124,5 +124,6 @@
     }
   ],
   "total_customers": 7043,
-  "churn_rate": 0.2653698707936959
+  "churn_rate": 0.2653698707936959,
+  "highest_rule": "Customers with tenure_bin = 0-12 and charges_bin = 70+ churn at 68.8% (n=831)."
 }
