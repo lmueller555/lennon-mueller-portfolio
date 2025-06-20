@@ -26,12 +26,22 @@
             text-decoration: underline;
             font-size: 48px;
         }
-        #controls {
+        #explainer {
             text-align: center;
             margin-bottom: 20px;
         }
+        #mainContent {
+            display: flex;
+        }
+        #controls {
+            text-align: left;
+            margin-bottom: 20px;
+            width: 250px;
+            margin-right: 20px;
+        }
         #controls label {
-            margin-right: 15px;
+            display: block;
+            margin-bottom: 10px;
         }
         #results {
             text-align: center;
@@ -86,19 +96,28 @@
         <a href="ai-ml.html">AI/ML</a>
     </nav>
 <div id="appContainer">
-    <div id="controls">
-        <label>Start date <input type="date" id="startDate"></label>
-        <label>End date <input type="date" id="endDate"></label>
-        <label>Initial Investment Amount <input type="number" id="initialInvestment" value="50000" step="1000" min="0"></label>
-        <label>Monthly Contribution Amount <input type="number" id="monthlyContribution" value="3000" step="100" min="0"></label>
-        <button id="runBtn">Run Simulation</button>
+    <div id="explainer">
+        <p>This tool simulates a simple trading strategy that buys stocks on a
+        generated 30&nbsp;day signal and sells them roughly a month later. Adjust the
+        dates and investment amounts on the left and click <strong>Run
+        Simulation</strong> to see how the portfolio would have performed.</p>
     </div>
-    <progress id="progress" value="0" max="1" style="width:100%; display:none;"></progress>
-    <div id="status" style="text-align:center;"></div>
-    <canvas id="chart" width="800" height="400"></canvas>
-    <div id="results" class="visual"></div>
-    <div id="additionalVisuals" class="visual"></div>
-
+    <div id="mainContent">
+        <div id="controls">
+            <label>Start date <input type="date" id="startDate"></label>
+            <label>End date <input type="date" id="endDate"></label>
+            <label>Initial Investment Amount <input type="number" id="initialInvestment" value="50000" step="1000" min="0"></label>
+            <label>Monthly Contribution Amount <input type="number" id="monthlyContribution" value="3000" step="100" min="0"></label>
+            <button id="runBtn">Run Simulation</button>
+        </div>
+        <div id="simArea" style="flex:1;">
+            <progress id="progress" value="0" max="1" style="width:100%; display:none;"></progress>
+            <div id="status" style="text-align:center;"></div>
+            <canvas id="chart" width="800" height="400"></canvas>
+            <div id="results" class="visual"></div>
+            <div id="additionalVisuals" class="visual"></div>
+        </div>
+    </div>
 </div>
 <script>
 document.addEventListener('DOMContentLoaded', function() {
