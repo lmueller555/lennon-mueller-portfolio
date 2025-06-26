@@ -257,9 +257,9 @@ document.addEventListener('DOMContentLoaded', function() {
             ctx.fillStyle = 'white';
             ctx.font = '12px sans-serif';
             ctx.textAlign = 'center';
-            ctx.fillText('Date', canvas.width/2, canvas.height-5);
+            ctx.fillText('Date', canvas.width/2, canvas.height - padding + 35);
             ctx.save();
-            ctx.translate(15, canvas.height/2);
+            ctx.translate(padding - 30, canvas.height/2);
             ctx.rotate(-Math.PI/2);
             ctx.fillText('Portfolio Value ($)', 0, 0);
             ctx.restore();
@@ -269,16 +269,16 @@ document.addEventListener('DOMContentLoaded', function() {
                 const x = padding + i*xScale;
                 const label = equityCurve[i].date;
                 ctx.save();
-                ctx.translate(x, canvas.height - padding + 10);
+                ctx.translate(x, canvas.height - padding + 20);
                 ctx.rotate(-Math.PI/4);
                 ctx.fillText(label,0,0);
                 ctx.restore();
             }
-            for(let j=0;j<=5;j++){
-                const val = minVal + (maxVal - minVal)*j/5;
+            const midVal = minVal + (maxVal - minVal)/2;
+            [minVal, midVal, maxVal].forEach(val => {
                 const y = canvas.height - padding - (val - minVal)*yScale;
                 ctx.fillText(val.toFixed(2), padding-5, y+3);
-            }
+            });
         } else {
             const history = dataset.filter(r=>r.company===selected);
             history.sort((a,b)=> new Date(a.date)-new Date(b.date));
@@ -298,9 +298,9 @@ document.addEventListener('DOMContentLoaded', function() {
             ctx.fillStyle = 'white';
             ctx.font = '12px sans-serif';
             ctx.textAlign = 'center';
-            ctx.fillText('Date', canvas.width/2, canvas.height-5);
+            ctx.fillText('Date', canvas.width/2, canvas.height - padding + 35);
             ctx.save();
-            ctx.translate(15, canvas.height/2);
+            ctx.translate(padding - 30, canvas.height/2);
             ctx.rotate(-Math.PI/2);
             ctx.fillText('Price ($)', 0, 0);
             ctx.restore();
@@ -310,16 +310,16 @@ document.addEventListener('DOMContentLoaded', function() {
                 const x = padding + i*xScale;
                 const label = history[i].date;
                 ctx.save();
-                ctx.translate(x, canvas.height - padding + 10);
+                ctx.translate(x, canvas.height - padding + 20);
                 ctx.rotate(-Math.PI/4);
                 ctx.fillText(label,0,0);
                 ctx.restore();
             }
-            for(let j=0;j<=5;j++){
-                const val = minVal + (maxVal - minVal)*j/5;
+            const midVal = minVal + (maxVal - minVal)/2;
+            [minVal, midVal, maxVal].forEach(val => {
                 const y = canvas.height - padding - (val - minVal)*yScale;
                 ctx.fillText(val.toFixed(2), padding-5, y+3);
-            }
+            });
             const buys = tradeHistory.filter(t=>t.company===selected && t.action==='buy');
             const sells = tradeHistory.filter(t=>t.company===selected && t.action==='sell');
             ctx.fillStyle = 'green';
@@ -391,7 +391,7 @@ document.addEventListener('DOMContentLoaded', function() {
             for(let i=0;i<pts.length;i+=step3){
                 const x = padding + i*xScale;
                 ctx.save();
-                ctx.translate(x, canvas.height - padding + 10);
+                ctx.translate(x, canvas.height - padding + 20);
                 ctx.rotate(-Math.PI/4);
                 ctx.fillText(i.toString(),0,0);
                 ctx.restore();
@@ -400,9 +400,9 @@ document.addEventListener('DOMContentLoaded', function() {
         ctx.fillStyle='white';
         ctx.font='12px sans-serif';
         ctx.textAlign='center';
-        ctx.fillText('Days Since Buy', canvas.width/2, canvas.height-5);
+        ctx.fillText('Days Since Buy', canvas.width/2, canvas.height - padding + 35);
         ctx.save();
-        ctx.translate(15, canvas.height/2);
+        ctx.translate(padding - 30, canvas.height/2);
         ctx.rotate(-Math.PI/2);
         ctx.fillText('% Change',0,0);
         ctx.restore();
