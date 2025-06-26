@@ -61,12 +61,6 @@
 <script>
 document.addEventListener('DOMContentLoaded', function() {
     const FILE_PATH = 'Updated_Dataset_with_Signals_Ranked.csv';
-    const INITIAL_INVEST = 50000;
-    const CONTRIB_AMOUNT = 3000;
-    const CONTRIB_FREQ = 22;
-    const HOLD_DAYS = 25;
-    const MANUAL_EXIT_DATE = '6/27/2024';
-    const RESUME_DATE = '6/20/2025';
     const CALC_RESET_DATE = '6/20/2025';
 
     let dataset = [];
@@ -78,9 +72,10 @@ document.addEventListener('DOMContentLoaded', function() {
     let roi = 0;
     let winRate = 0;
 
-    fetch(FILE_PATH)
-        .then(r => r.text())
-        .then(text => { parseDataset(text); runBacktest(); populateUI(); });
+    Promise.all([
+        fetch(FILE_PATH).then(r => r.text()),
+        fetch('/backtest').then(r => r.json())
+    ]).then(([text, bt]) => { parseDataset(text); processBacktest(bt); populateUI(); });
 
     function parseDataset(text){
         const lines = text.trim().split('\n');
@@ -104,97 +99,14 @@ document.addEventListener('DOMContentLoaded', function() {
         dateIndex = [...new Set(dataset.map(r=>r.date))];
     }
 
-    function runBacktest(){
-        let cash = INITIAL_INVEST;
-        let contribCtr = 0;
-        const portfolio = [];
-        const trades = [];
-        let tradingActive = true;
-        equityCurve = [];
-        tradeHistory = [];
 
-        for(let i=0;i<dateIndex.length;i++){
-            const currDate = dateIndex[i];
-            contribCtr++;
-            if(contribCtr===CONTRIB_FREQ){ cash += CONTRIB_AMOUNT; contribCtr=0; }
-
-            if(new Date(currDate).getTime() === new Date(MANUAL_EXIT_DATE).getTime()){
-                for(const pos of [...portfolio]){
-                    const row = dataset.find(r => r.company===pos.company && r.date===currDate);
-                    if(!row) continue;
-                    const px = row.price;
-                    const profit = (px-pos.buy_price)*pos.shares;
-                    cash += pos.shares*px;
-                    trades.push(profit>0);
-                    tradeHistory.push({company:pos.company,date:currDate,action:'sell',price:px});
-                }
-                portfolio.length = 0;
-                tradingActive = false;
-            }
-
-            if(new Date(currDate).getTime() >= new Date(RESUME_DATE).getTime()){
-                tradingActive = true;
-            }
-
-            const dailyRows = dataset.filter(r=>r.date===currDate);
-            for(const row of dailyRows){
-                if(tradingActive && row.buy===1 && cash>0 && i+1<dateIndex.length){
-                    const nxt = dataset.find(r=>r.company===row.company && r.date===dateIndex[i+1]);
-                    if(!nxt) continue;
-                    const qty = (cash*0.30)/nxt.open;
-                    if(qty>=1){
-                        const invest = qty*nxt.open;
-                        cash -= invest;
-                        const buyDate = dateIndex[i+1];
-                        const sellDate = (i+HOLD_DAYS < dateIndex.length) ? dateIndex[i+HOLD_DAYS] : null;
-                        portfolio.push({company:row.company,buy_date:buyDate,sell_date:sellDate,shares:qty,buy_price:nxt.open});
-                        tradeHistory.push({company:row.company,date:buyDate,action:'buy',price:nxt.open});
-                    }
-                }
-            }
-
-            for(let j=portfolio.length-1;j>=0;j--){
-                const pos = portfolio[j];
-                if(pos.sell_date && currDate===pos.sell_date){
-                    const row = dataset.find(r=>r.company===pos.company && r.date===pos.sell_date);
-                    if(!row) continue;
-                    const px = row.price;
-                    const profit = (px-pos.buy_price)*pos.shares;
-                    cash += pos.shares*px;
-                    trades.push(profit>0);
-                    tradeHistory.push({company:pos.company,date:currDate,action:'sell',price:px});
-                    portfolio.splice(j,1);
-                }
-            }
-
-            let pv = 0;
-            for(const pos of portfolio){
-                const r = dataset.find(x=>x.company===pos.company && x.date===currDate);
-                if(r) pv += pos.shares*r.price;
-            }
-            equityCurve.push({date: currDate, value: cash + pv});
-        }
-
-        const totalContrib = INITIAL_INVEST + CONTRIB_AMOUNT * Math.floor(dateIndex.length/CONTRIB_FREQ);
-        finalVal = equityCurve[equityCurve.length-1].value;
-        roi = ((finalVal-totalContrib)/totalContrib)*100;
-        winRate = trades.length ? (trades.filter(t=>t).length/trades.length)*100 : 0;
-
-        const lastDate = dateIndex[dateIndex.length-1];
-        openPositions = portfolio.map(pos => {
-            const row = dataset.find(r=>r.company===pos.company && r.date===lastDate);
-            if(!row) return null;
-            let daysRemaining;
-            if(pos.sell_date){
-                daysRemaining = Math.floor((new Date(pos.sell_date) - new Date(lastDate))/(1000*60*60*24));
-            } else {
-                const held = Math.floor((new Date(lastDate)-new Date(pos.buy_date))/(1000*60*60*24));
-                daysRemaining = HOLD_DAYS - held;
-            }
-            const plVal = (row.price-pos.buy_price)*pos.shares;
-            const plPct = (row.price-pos.buy_price)/pos.buy_price*100;
-            return {company:pos.company,shares:pos.shares,buy_date:pos.buy_date,buy_price:pos.buy_price,current_price:row.price,pl_val:plVal,pl_pct:plPct,days_remaining:daysRemaining};
-        }).filter(Boolean);
+    function processBacktest(bt){
+        equityCurve = bt.equity_curve;
+        openPositions = bt.open_positions;
+        tradeHistory = bt.trades;
+        finalVal = bt.final_value;
+        roi = bt.roi;
+        winRate = bt.win_rate;
     }
 
     function populateUI(){
