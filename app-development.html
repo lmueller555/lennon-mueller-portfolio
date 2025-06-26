@@ -65,7 +65,8 @@ document.addEventListener('DOMContentLoaded', function() {
     const CONTRIB_AMOUNT = 3000;
     const CONTRIB_FREQ = 22;
     const HOLD_DAYS = 25;
-    const MANUAL_EXIT_DATE = '2024-06-27';
+    const MANUAL_EXIT_DATE = '6/27/2024';
+    const RESUME_DATE = '6/20/2025';
 
     let dataset = [];
     let dateIndex = [];
@@ -107,6 +108,7 @@ document.addEventListener('DOMContentLoaded', function() {
         let contribCtr = 0;
         const portfolio = [];
         const trades = [];
+        let tradingActive = true;
         equityCurve = [];
         tradeHistory = [];
 
@@ -115,7 +117,7 @@ document.addEventListener('DOMContentLoaded', function() {
             contribCtr++;
             if(contribCtr===CONTRIB_FREQ){ cash += CONTRIB_AMOUNT; contribCtr=0; }
 
-            if(currDate === MANUAL_EXIT_DATE){
+            if(new Date(currDate).getTime() === new Date(MANUAL_EXIT_DATE).getTime()){
                 for(const pos of [...portfolio]){
                     const row = dataset.find(r => r.company===pos.company && r.date===currDate);
                     if(!row) continue;
@@ -126,11 +128,16 @@ document.addEventListener('DOMContentLoaded', function() {
                     tradeHistory.push({company:pos.company,date:currDate,action:'sell',price:px});
                 }
                 portfolio.length = 0;
+                tradingActive = false;
+            }
+
+            if(new Date(currDate).getTime() >= new Date(RESUME_DATE).getTime()){
+                tradingActive = true;
             }
 
             const dailyRows = dataset.filter(r=>r.date===currDate);
             for(const row of dailyRows){
-                if(row.buy===1 && cash>0 && i+1<dateIndex.length){
+                if(tradingActive && row.buy===1 && cash>0 && i+1<dateIndex.length){
                     const nxt = dataset.find(r=>r.company===row.company && r.date===dateIndex[i+1]);
                     if(!nxt) continue;
                     const qty = (cash*0.30)/nxt.open;
