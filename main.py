@@ -135,7 +135,7 @@ def run_backtest(df: pd.DataFrame):
             {
                 "company": pos["company"],
                 "shares": round(pos["shares_bought"], 2),
-                "buy_date": pos["buy_date"].strftime("%-m/%-d/%Y"),
+                "buy_date": f"{pos['buy_date'].month}/{pos['buy_date'].day}/{pos['buy_date'].year}",
                 "buy_price": round(pos["buy_price"], 2),
                 "current_price": round(last_px, 2),
                 "pl_val": round(pl_val, 2),
