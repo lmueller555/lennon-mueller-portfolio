@@ -112,8 +112,16 @@ async function loadDashboard(){
         },
         options:{
             scales:{
-                y:{beginAtZero:true,max:100,ticks:{color:'white'}},
-                x:{ticks:{maxRotation:45,minRotation:45,autoSkip:false,color:'white'}}
+                y:{
+                    beginAtZero:true,
+                    max:100,
+                    ticks:{color:'white'},
+                    title:{display:true,text:'Churn %',color:'white'}
+                },
+                x:{
+                    ticks:{maxRotation:45,minRotation:45,autoSkip:false,color:'white'},
+                    title:{display:true,text:'Feature Combination',color:'white'}
+                }
             },
             plugins:{
                 legend:{labels:{color:'white'}}
@@ -132,8 +140,16 @@ async function loadDashboard(){
         },
         options:{
             scales:{
-                y:{beginAtZero:true,max:100,ticks:{color:'white'}},
-                x:{ticks:{maxRotation:45,minRotation:45,autoSkip:false,color:'white'}}
+                y:{
+                    beginAtZero:true,
+                    max:100,
+                    ticks:{color:'white'},
+                    title:{display:true,text:'Churn %',color:'white'}
+                },
+                x:{
+                    ticks:{maxRotation:45,minRotation:45,autoSkip:false,color:'white'},
+                    title:{display:true,text:'Feature Combination',color:'white'}
+                }
             },
             plugins:{
                 legend:{labels:{color:'white'}}
