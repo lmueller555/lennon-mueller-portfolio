@@ -4,396 +4,324 @@
     <meta charset="UTF-8">
     <title>Lennon Mueller Portfolio</title>
     <style>
-        html, body {
-            height: 100%;
-            margin: 0;
-        }
+        html, body { height: 100%; margin: 0; }
         body::before {
             content: "";
             position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
+            top: 0; left: 0; width: 100%; height: 100%;
             background: url('Mueller Logo.png') no-repeat center center;
-            background-size: cover;
-            opacity: 0.5;
-            z-index: -1;
+            background-size: cover; opacity: 0.5; z-index: -1;
         }
-        h1.title {
-            color: white;
-            text-align: center;
-            text-decoration: underline;
-            font-size: 48px;
-        }
-        #explainer {
-            text-align: center;
-            margin-bottom: 20px;
-        }
-        #mainContent {
-            display: flex;
-        }
-        #controls {
-            text-align: left;
-            margin-bottom: 20px;
-            width: 250px;
-            margin-right: 20px;
-        }
-        #controls label {
-            display: block;
-            margin-bottom: 10px;
-        }
-        #results {
-            text-align: center;
-            margin-top: 20px;
-        }
-        canvas {
-            display: block;
-            margin: 20px auto;
-            border: 1px solid #ddd;
-        }
-        nav {
-            text-align: center;
-            margin-top: 10px;
-            background: rgba(0,0,0,0.6);
-            padding: 10px 0;
-        }
-        nav a {
-            margin: 0 15px;
-            color: white;
-            text-decoration: none;
-            border: 1px solid white;
-            padding: 8px 15px;
-            border-radius: 4px;
-            background: rgba(0,0,0,0.6);
-        }
-        #appContainer {
-            background: rgba(0,0,0,0.6);
-            color: white;
-            padding: 20px;
-            margin: 20px auto;
-            width: 90%;
-            max-width: 1000px;
-            border-radius: 8px;
-        }
-        h2.sim-title {
-            text-align: center;
-            margin-top: 0;
-        }
-        .visual {
-            background: rgba(0,0,0,0.6);
-            color: white;
-            padding: 20px;
-            margin: 20px auto;
-            width: 90%;
-            max-width: 800px;
-            border-radius: 8px;
-            text-align: center;
-        }
+        h1.title { color: white; text-align: center; text-decoration: underline; font-size: 48px; }
+        nav { text-align: center; margin-top: 10px; background: rgba(0,0,0,0.6); padding: 10px 0; }
+        nav a { margin: 0 15px; color: white; text-decoration: none; border: 1px solid white; padding: 8px 15px; border-radius: 4px; background: rgba(0,0,0,0.6); }
+        #appContainer { background: rgba(0,0,0,0.6); color: white; padding: 20px; margin: 20px auto; width: 90%; max-width: 1100px; border-radius: 8px; }
+        h2.sim-title { text-align: center; margin-top: 0; }
+        .metric-row { display: flex; flex-wrap: wrap; justify-content: space-around; }
+        .metric { text-align: center; margin: 10px; }
+        #chart, #openChart { display: block; margin: 20px auto; border: 1px solid #ddd; }
+        #openContainer table { width: 100%; border-collapse: collapse; }
+        #openContainer th, #openContainer td { padding: 4px; border-bottom: 1px solid #ddd; }
+        .pos { color: green; }
+        .neg { color: red; }
     </style>
 </head>
 <body>
-    <h1 class="title">Lennon Mueller</h1>
-    <nav>
-        <a href="index.html">Home</a>
-        <a href="app-development.html">App Development</a>
-        <a href="ai-ml.html">AI/ML</a>
-    </nav>
+<h1 class="title">Lennon Mueller</h1>
+<nav>
+    <a href="index.html">Home</a>
+    <a href="app-development.html">App Development</a>
+    <a href="ai-ml.html">AI/ML</a>
+</nav>
 <div id="appContainer">
-    <h2 class="sim-title">Investing Simulation</h2>
-    <div id="explainer">
-        <p>This tool simulates a simple trading strategy that buys stocks on a
-        generated 30&nbsp;day signal and sells them roughly a month later. Adjust the
-        dates and investment amounts on the left and click <strong>Run
-        Simulation</strong> to see how the portfolio would have performed.</p>
-        <p>The buy signal is calculated from historical data where a company's
-        stock price climbed at least 30% within 30&nbsp;days. The financial
-        metrics from the first day of each of these aggressive growth periods are averaged into a single
-        "growth metric" for that company. Each day, the company's financial metrics are compared to the growth metric using Euclidean Distance. 
-        If the financial metrics for any given day are close enough to the growth metric, a new growth period is assumed
-        and triggers a buy. Every purchase is
-        automatically sold after 30&nbsp;days.</p>
-    </div>
-    <div id="mainContent">
-        <div id="controls">
-            <label>Start date <input type="date" id="startDate"></label>
-            <label>End date <input type="date" id="endDate"></label>
-            <label>Initial Investment Amount <input type="number" id="initialInvestment" value="50000" step="1000" min="0"></label>
-            <label>Monthly Contribution Amount <input type="number" id="monthlyContribution" value="3000" step="100" min="0"></label>
-            <button id="runBtn">Run Simulation</button>
-        </div>
-        <div id="simArea" style="flex:1;">
-            <progress id="progress" value="0" max="1" style="width:100%; display:none;"></progress>
-            <div id="status" style="text-align:center;"></div>
-            <canvas id="chart" width="800" height="400"></canvas>
-            <div id="results" class="visual">Run the simulation to see results here.</div>
-            <div id="additionalVisuals" class="visual">Additional visuals will appear here after running the simulation.</div>
+    <h2 class="sim-title">Investing Dashboard</h2>
+    <div class="metric-row">
+        <div class="metric"><div id="finalValue">$0</div><div>Final Portfolio Value</div></div>
+        <div class="metric"><div id="roi">0%</div><div>ROI</div></div>
+        <div class="metric"><div id="winRate">0%</div><div>Win Rate</div></div>
+        <div class="metric">
+            <label for="changePeriod">Change Period</label>
+            <select id="changePeriod">
+                <option value="7">Weekly</option>
+                <option value="30">Monthly</option>
+                <option value="365">Yearly</option>
+            </select>
+            <div><span id="changeValue">$0</span> (<span id="changePct">0%</span>)</div>
         </div>
     </div>
+    <div style="text-align:center;margin-top:10px;">
+        <label for="companySelect">Select Company</label>
+        <select id="companySelect"></select>
+    </div>
+    <canvas id="chart" width="800" height="400"></canvas>
+    <h3 style="text-align:center;">Open Positions</h3>
+    <div id="openContainer" style="overflow-x:auto;"></div>
+    <canvas id="openChart" width="600" height="400"></canvas>
 </div>
 <script>
 document.addEventListener('DOMContentLoaded', function() {
-    const dataset = [];
-    let dateIndex = [];
+    const FILE_PATH = 'Updated_Dataset_with_Signals_Ranked.csv';
+    const INITIAL_INVEST = 50000;
+    const CONTRIB_AMOUNT = 3000;
+    const CONTRIB_FREQ = 22;
+    const HOLD_DAYS = 25;
+    const MANUAL_EXIT_DATE = '2024-06-27';
 
-    function showPlaceholder() {
-        const canvas = document.getElementById('chart');
-        const ctx = canvas.getContext('2d');
-        ctx.clearRect(0, 0, canvas.width, canvas.height);
-        ctx.fillStyle = 'white';
-        ctx.textAlign = 'center';
-        ctx.font = '16px sans-serif';
-        ctx.fillText('Run the simulation to see the portfolio chart here.', canvas.width/2, canvas.height/2);
+    let dataset = [];
+    let dateIndex = [];
+    let equityCurve = [];
+    let openPositions = [];
+    let tradeHistory = [];
+    let finalVal = 0;
+    let roi = 0;
+    let winRate = 0;
+
+    fetch(FILE_PATH)
+        .then(r => r.text())
+        .then(text => { parseDataset(text); runBacktest(); populateUI(); });
+
+    function parseDataset(text){
+        const lines = text.trim().split('\n');
+        const headers = lines[0].split(',');
+        const dIdx = headers.indexOf('Date');
+        const pIdx = headers.indexOf('Price') >= 0 ? headers.indexOf('Price') : headers.indexOf('Close/Last');
+        const oIdx = headers.indexOf('Open');
+        const cIdx = headers.indexOf('Company');
+        const bIdx = headers.indexOf('30 Day Buy Signal');
+        for(let i=1;i<lines.length;i++){
+            const cols = lines[i].split(',');
+            dataset.push({
+                date: cols[dIdx],
+                price: parseFloat(cols[pIdx]),
+                open: parseFloat(cols[oIdx]),
+                company: cols[cIdx],
+                buy: parseInt(cols[bIdx]) || 0
+            });
+        }
+        dataset.sort((a,b)=> new Date(a.date)-new Date(b.date));
+        dateIndex = [...new Set(dataset.map(r=>r.date))];
     }
 
-    showPlaceholder();
-
-    fetch('Updated_Dataset_with_Signals_Ranked.csv')
-        .then(response => response.text())
-        .then(text => {
-            const lines = text.trim().split('\n');
-            const headers = lines[0].split(',');
-            const dateIdx = headers.indexOf('Date');
-            const closeIdx = headers.indexOf('Close/Last');
-            const openIdx = headers.indexOf('Open');
-            const companyIdx = headers.indexOf('Company');
-            const buyIdx = headers.indexOf('30 Day Buy Signal');
-            for (let i = 1; i < lines.length; i++) {
-                const cols = lines[i].split(',');
-                dataset.push({
-                    date: cols[dateIdx],
-                    close: parseFloat(cols[closeIdx]),
-                    open: parseFloat(cols[openIdx]),
-                    company: cols[companyIdx],
-                    buy: parseInt(cols[buyIdx]) || 0
-                });
-            }
-            dataset.sort((a,b) => new Date(a.date) - new Date(b.date));
-            dateIndex = Array.from(new Set(dataset.map(r => r.date)));
-            const startInput = document.getElementById('startDate');
-            const endInput = document.getElementById('endDate');
-            startInput.value = dateIndex[0];
-            startInput.min = dateIndex[0];
-            startInput.max = dateIndex[dateIndex.length-1];
-            endInput.value = dateIndex[dateIndex.length-1];
-            endInput.min = dateIndex[0];
-            endInput.max = dateIndex[dateIndex.length-1];
-        });
-
-    async function runSimulation() {
-        if (dataset.length === 0) return;
-
-        const startDate = new Date(document.getElementById('startDate').value);
-        const endDate = new Date(document.getElementById('endDate').value);
-        const initialInvestment = parseFloat(document.getElementById('initialInvestment').value);
-        const monthlyContribution = parseFloat(document.getElementById('monthlyContribution').value);
-
-        const dfFiltered = dataset.filter(r => {
-            const d = new Date(r.date);
-            return d >= startDate && d <= endDate;
-        });
-        const dates = Array.from(new Set(dfFiltered.map(r => r.date)));
-        let cashAvailable = initialInvestment;
+    function runBacktest(){
+        let cash = INITIAL_INVEST;
+        let contribCtr = 0;
         const portfolio = [];
         const trades = [];
-        const tradeDetails = [];
-        const portfolioValues = [];
-        let contributionCounter = 0;
-        const progress = document.getElementById('progress');
-        const status = document.getElementById('status');
-        progress.style.display = 'block';
-        progress.value = 0;
-        status.textContent = '';
+        equityCurve = [];
+        tradeHistory = [];
 
-        function portfolioValue(currentDate) {
-            let value = 0;
-            for (const position of portfolio) {
-                const current = dfFiltered.find(r => r.date === currentDate && r.company === position.company);
-                if (current) {
-                    value += position.shares * current.close;
+        for(let i=0;i<dateIndex.length;i++){
+            const currDate = dateIndex[i];
+            contribCtr++;
+            if(contribCtr===CONTRIB_FREQ){ cash += CONTRIB_AMOUNT; contribCtr=0; }
+
+            if(currDate === MANUAL_EXIT_DATE){
+                for(const pos of [...portfolio]){
+                    const row = dataset.find(r => r.company===pos.company && r.date===currDate);
+                    if(!row) continue;
+                    const px = row.price;
+                    const profit = (px-pos.buy_price)*pos.shares;
+                    cash += pos.shares*px;
+                    trades.push(profit>0);
+                    tradeHistory.push({company:pos.company,date:currDate,action:'sell',price:px});
                 }
+                portfolio.length = 0;
             }
-            return value;
-        }
 
-        for (let i = 0; i < dates.length; i++) {
-            const currentDate = dates[i];
-            progress.value = (i + 1) / dates.length;
-            status.textContent = `Simulating trading day ${i + 1} of ${dates.length} (${((i + 1) / dates.length * 100).toFixed(2)}%)`;
-            contributionCounter++;
-            if (contributionCounter === 22) {
-                cashAvailable += monthlyContribution;
-                contributionCounter = 0;
-            }
-            const dailyData = dfFiltered.filter(r => r.date === currentDate);
-            for (const row of dailyData) {
-                if (row.buy === 1 && cashAvailable > 0 && i + 1 < dates.length) {
-                    const nextDay = dates[i + 1];
-                    const nextData = dfFiltered.find(r => r.date === nextDay && r.company === row.company);
-                    if (nextData) {
-                        const maxShares = (cashAvailable * 0.5) / nextData.open;
-                        if (maxShares >= 1) {
-                            const investAmount = maxShares * nextData.open;
-                            cashAvailable -= investAmount;
-                            const sellIndex = i + 32 < dates.length ? i + 32 : dates.length - 1;
-                            portfolio.push({
-                                company: row.company,
-                                sell_date: dates[sellIndex],
-                                shares: investAmount / nextData.open,
-                                buy_price: nextData.open
-                            });
-                        }
+            const dailyRows = dataset.filter(r=>r.date===currDate);
+            for(const row of dailyRows){
+                if(row.buy===1 && cash>0 && i+1<dateIndex.length){
+                    const nxt = dataset.find(r=>r.company===row.company && r.date===dateIndex[i+1]);
+                    if(!nxt) continue;
+                    const qty = (cash*0.30)/nxt.open;
+                    if(qty>=1){
+                        const invest = qty*nxt.open;
+                        cash -= invest;
+                        const buyDate = dateIndex[i+1];
+                        const sellDate = (i+HOLD_DAYS < dateIndex.length) ? dateIndex[i+HOLD_DAYS] : null;
+                        portfolio.push({company:row.company,buy_date:buyDate,sell_date:sellDate,shares:qty,buy_price:nxt.open});
+                        tradeHistory.push({company:row.company,date:buyDate,action:'buy',price:nxt.open});
                     }
                 }
             }
-            for (let j = portfolio.length - 1; j >= 0; j--) {
+
+            for(let j=portfolio.length-1;j>=0;j--){
                 const pos = portfolio[j];
-                if (currentDate === pos.sell_date) {
-                    const sellData = dfFiltered.find(r => r.date === pos.sell_date && r.company === pos.company);
-                    if (sellData) {
-                        const sellPrice = sellData.close;
-                        const profit = (sellPrice - pos.buy_price) * pos.shares;
-                        cashAvailable += pos.shares * sellPrice;
-                        portfolio.splice(j, 1);
-                        trades.push(profit > 0);
-                        tradeDetails.push({company: pos.company, profit});
-                    }
+                if(pos.sell_date && currDate===pos.sell_date){
+                    const row = dataset.find(r=>r.company===pos.company && r.date===pos.sell_date);
+                    if(!row) continue;
+                    const px = row.price;
+                    const profit = (px-pos.buy_price)*pos.shares;
+                    cash += pos.shares*px;
+                    trades.push(profit>0);
+                    tradeHistory.push({company:pos.company,date:currDate,action:'sell',price:px});
+                    portfolio.splice(j,1);
                 }
             }
-            const pValue = portfolioValue(currentDate);
-            portfolioValues.push({date: currentDate, value: cashAvailable + pValue});
-            await new Promise(r => setTimeout(r, 0));
+
+            let pv = 0;
+            for(const pos of portfolio){
+                const r = dataset.find(x=>x.company===pos.company && x.date===currDate);
+                if(r) pv += pos.shares*r.price;
+            }
+            equityCurve.push({date: currDate, value: cash + pv});
         }
-        progress.style.display = 'none';
-        status.textContent = '';
 
-        const totalContributions = initialInvestment + monthlyContribution * Math.floor(dates.length / 22);
-        const lastDate = dates[dates.length - 1];
-        const finalValue = cashAvailable + portfolioValue(lastDate);
-        const roi = ((finalValue - totalContributions) / totalContributions) * 100;
-        const winRate = trades.length ? (trades.filter(t => t).length / trades.length) * 100 : 0;
+        const totalContrib = INITIAL_INVEST + CONTRIB_AMOUNT * Math.floor(dateIndex.length/CONTRIB_FREQ);
+        finalVal = equityCurve[equityCurve.length-1].value;
+        roi = ((finalVal-totalContrib)/totalContrib)*100;
+        winRate = trades.length ? (trades.filter(t=>t).length/trades.length)*100 : 0;
 
-        const profitsByCompany = {};
-        let totalProfit = 0;
-        for (const t of tradeDetails) {
-            profitsByCompany[t.company] = (profitsByCompany[t.company] || 0) + t.profit;
-            totalProfit += t.profit;
-        }
-        const sortedCompanies = Object.entries(profitsByCompany).sort((a,b) => b[1] - a[1]);
-        const best = sortedCompanies[0];
-        const worst = sortedCompanies[sortedCompanies.length - 1];
-        const totalTrades = tradeDetails.length;
-        const avgProfit = totalTrades ? totalProfit / totalTrades : 0;
-
-        const results = document.getElementById('results');
-        results.innerHTML = `
-            <p>Final Portfolio Value: $${finalValue.toFixed(2)}</p>
-            <p>Total Contributions: $${totalContributions.toFixed(2)}</p>
-            <p>ROI: ${roi.toFixed(2)}%</p>
-            <p>Trading Win Rate: ${winRate.toFixed(2)}%</p>
-            <p>Total Trades: ${totalTrades}</p>
-            <p>Average Profit per Trade: $${avgProfit.toFixed(2)}</p>
-            <p>Best Stock: ${best ? best[0] : 'N/A'} ($${best ? best[1].toFixed(2) : '0'})</p>
-            <p>Worst Stock: ${worst ? worst[0] : 'N/A'} ($${worst ? worst[1].toFixed(2) : '0'})</p>
-        `;
-
-        const addDiv = document.getElementById('additionalVisuals');
-        addDiv.innerHTML = '<canvas id="profitChart" width="800" height="400"></canvas>';
-
-        drawChart(portfolioValues);
-        drawProfitChart(profitsByCompany);
+        const lastDate = dateIndex[dateIndex.length-1];
+        openPositions = portfolio.map(pos => {
+            const row = dataset.find(r=>r.company===pos.company && r.date===lastDate);
+            if(!row) return null;
+            let daysRemaining;
+            if(pos.sell_date){
+                daysRemaining = Math.floor((new Date(pos.sell_date) - new Date(lastDate))/(1000*60*60*24));
+            } else {
+                const held = Math.floor((new Date(lastDate)-new Date(pos.buy_date))/(1000*60*60*24));
+                daysRemaining = HOLD_DAYS - held;
+            }
+            const plVal = (row.price-pos.buy_price)*pos.shares;
+            const plPct = (row.price-pos.buy_price)/pos.buy_price*100;
+            return {company:pos.company,shares:pos.shares,buy_date:pos.buy_date,buy_price:pos.buy_price,current_price:row.price,pl_val:plVal,pl_pct:plPct,days_remaining:daysRemaining};
+        }).filter(Boolean);
     }
 
-    document.getElementById('runBtn').addEventListener('click', runSimulation);
+    function populateUI(){
+        document.getElementById('finalValue').textContent = '$'+finalVal.toFixed(2);
+        document.getElementById('roi').textContent = roi.toFixed(2)+'%';
+        document.getElementById('winRate').textContent = winRate.toFixed(2)+'%';
+        updateChangeMetric(parseInt(document.getElementById('changePeriod').value));
+        populateCompanyOptions();
+        drawMainChart();
+        displayOpenPositions();
+        drawOpenChart();
+    }
 
-    function drawChart(points) {
+    function updateChangeMetric(days){
+        const idx = equityCurve.length > days ? equityCurve.length - days - 1 : 0;
+        const startVal = equityCurve[idx].value;
+        const change = equityCurve[equityCurve.length-1].value - startVal;
+        const pct = startVal ? (change/startVal)*100 : 0;
+        document.getElementById('changeValue').textContent = '$'+change.toFixed(2);
+        document.getElementById('changePct').textContent = pct.toFixed(2)+'%';
+    }
+
+    document.getElementById('changePeriod').addEventListener('change', function(){
+        updateChangeMetric(parseInt(this.value));
+    });
+
+    function populateCompanyOptions(){
+        const select = document.getElementById('companySelect');
+        const counts = {};
+        tradeHistory.filter(t=>t.action==='buy').forEach(t=>{ counts[t.company]=(counts[t.company]||0)+1; });
+        select.innerHTML = '<option value="">All Companies</option>' +
+            Object.keys(counts).map(c => `<option value="${c}">${c} (${counts[c]})</option>`).join('');
+        select.addEventListener('change', drawMainChart);
+    }
+
+    function drawMainChart(){
         const canvas = document.getElementById('chart');
         const ctx = canvas.getContext('2d');
-        ctx.clearRect(0, 0, canvas.width, canvas.height);
-        if (points.length === 0) return;
-
-        const values = points.map(p => p.value);
-        const maxVal = Math.max(...values);
-        const minVal = Math.min(...values);
-        const padding = 40;
-        const xScale = (canvas.width - padding * 2) / (points.length - 1 || 1);
-        const yScale = (canvas.height - padding * 2) / (maxVal - minVal || 1);
-
-        ctx.strokeStyle = 'white';
-        ctx.beginPath();
-        ctx.moveTo(padding, padding);
-        ctx.lineTo(padding, canvas.height - padding);
-        ctx.lineTo(canvas.width - padding, canvas.height - padding);
-        ctx.stroke();
-
-        ctx.beginPath();
-        ctx.strokeStyle = 'blue';
-        ctx.moveTo(padding, canvas.height - padding - (values[0] - minVal) * yScale);
-        for (let i = 1; i < points.length; i++) {
-            ctx.lineTo(padding + i * xScale, canvas.height - padding - (values[i] - minVal) * yScale);
+        ctx.clearRect(0,0,canvas.width,canvas.height);
+        const selected = document.getElementById('companySelect').value;
+        if(!selected){
+            const vals = equityCurve.map(p=>p.value);
+            const maxVal = Math.max(...vals); const minVal = Math.min(...vals);
+            const padding = 40;
+            const xScale = (canvas.width - padding*2) / (equityCurve.length-1);
+            const yScale = (canvas.height - padding*2) / (maxVal - minVal || 1);
+            ctx.strokeStyle = '#00BFFF';
+            ctx.beginPath();
+            for(let i=0;i<equityCurve.length;i++){
+                const x = padding + i*xScale;
+                const y = canvas.height - padding - (equityCurve[i].value - minVal)*yScale;
+                if(i===0) ctx.moveTo(x,y); else ctx.lineTo(x,y);
+            }
+            ctx.stroke();
+        } else {
+            const history = dataset.filter(r=>r.company===selected);
+            history.sort((a,b)=> new Date(a.date)-new Date(b.date));
+            const vals = history.map(h=>h.price);
+            const maxVal = Math.max(...vals); const minVal = Math.min(...vals);
+            const padding = 40;
+            const xScale = (canvas.width - padding*2) / (history.length-1);
+            const yScale = (canvas.height - padding*2) / (maxVal - minVal || 1);
+            ctx.strokeStyle = '#00BFFF';
+            ctx.beginPath();
+            for(let i=0;i<history.length;i++){
+                const x = padding + i*xScale;
+                const y = canvas.height - padding - (history[i].price - minVal)*yScale;
+                if(i===0) ctx.moveTo(x,y); else ctx.lineTo(x,y);
+            }
+            ctx.stroke();
+            const buys = tradeHistory.filter(t=>t.company===selected && t.action==='buy');
+            const sells = tradeHistory.filter(t=>t.company===selected && t.action==='sell');
+            ctx.fillStyle = 'green';
+            buys.forEach(b => {
+                const idx = history.findIndex(h=>h.date===b.date);
+                if(idx>=0){
+                    const x = padding + idx*xScale;
+                    const y = canvas.height - padding - (history[idx].price - minVal)*yScale;
+                    ctx.beginPath();
+                    ctx.moveTo(x, y-5); ctx.lineTo(x-5,y+5); ctx.lineTo(x+5,y+5); ctx.fill();
+                }
+            });
+            ctx.fillStyle = 'red';
+            sells.forEach(s => {
+                const idx = history.findIndex(h=>h.date===s.date);
+                if(idx>=0){
+                    const x = padding + idx*xScale;
+                    const y = canvas.height - padding - (history[idx].price - minVal)*yScale;
+                    ctx.beginPath();
+                    ctx.moveTo(x, y+5); ctx.lineTo(x-5,y-5); ctx.lineTo(x+5,y-5); ctx.fill();
+                }
+            });
         }
-        ctx.stroke();
-
-        const xTicks = 5;
-        const yTicks = 5;
-        ctx.fillStyle = 'white';
-        ctx.textAlign = 'center';
-        ctx.font = '12px sans-serif';
-        for (let i = 0; i <= xTicks; i++) {
-            const idx = Math.floor(i * (points.length - 1) / xTicks);
-            const x = padding + idx * xScale;
-            ctx.fillText(points[idx].date, x, canvas.height - padding + 15);
-        }
-        ctx.textAlign = 'right';
-        for (let i = 0; i <= yTicks; i++) {
-            const val = minVal + i * (maxVal - minVal) / yTicks;
-            const y = canvas.height - padding - (val - minVal) * yScale;
-            ctx.fillText('$' + val.toFixed(0), padding - 5, y + 4);
-        }
-
-        ctx.textAlign = 'center';
-        ctx.font = '14px sans-serif';
-        ctx.fillText('Date', canvas.width / 2, canvas.height - 10);
-        ctx.save();
-        ctx.translate(15, canvas.height / 2);
-        ctx.rotate(-Math.PI / 2);
-        ctx.fillText('Portfolio Value ($)', 0, 0);
-        ctx.restore();
     }
 
-    function drawProfitChart(profits) {
-        const canvas = document.getElementById('profitChart');
-        if (!canvas) return;
+    function displayOpenPositions(){
+        const container = document.getElementById('openContainer');
+        if(openPositions.length===0){ container.innerHTML = '<p>No active trades.</p>'; return; }
+        let html = '<table><thead><tr><th>Company</th><th>Shares</th><th>Buy Date</th><th>Buy Price</th><th>Current Price</th><th>P/L $</th><th>P/L %</th><th>Days Remaining</th></tr></thead><tbody>';
+        for(const row of openPositions){
+            const plClass = row.pl_val>0 ? 'pos' : (row.pl_val<0 ? 'neg' : '');
+            html += `<tr><td>${row.company}</td><td>${row.shares.toFixed(2)}</td><td>${row.buy_date}</td><td>${row.buy_price.toFixed(2)}</td><td>${row.current_price.toFixed(2)}</td><td class="${plClass}">${row.pl_val.toFixed(2)}</td><td class="${plClass}">${row.pl_pct.toFixed(2)}</td><td>${row.days_remaining}</td></tr>`;
+        }
+        html += '</tbody></table>';
+        container.innerHTML = html;
+    }
+
+    function drawOpenChart(){
+        const canvas = document.getElementById('openChart');
         const ctx = canvas.getContext('2d');
         ctx.clearRect(0,0,canvas.width,canvas.height);
-        const entries = Object.entries(profits).sort((a,b)=>b[1]-a[1]).slice(0,5);
-        if (entries.length === 0) return;
+        if(openPositions.length===0) return;
         const padding = 40;
-        const barWidth = (canvas.width - padding * 2) / entries.length;
-        const values = entries.map(e => e[1]);
-        const maxVal = Math.max(...values);
-        for (let i = 0; i < entries.length; i++) {
-            const value = entries[i][1];
-            const height = (canvas.height - padding * 2) * (value / maxVal);
-            const x = padding + i * barWidth + barWidth * 0.1;
-            const y = canvas.height - padding - height;
-            const w = barWidth * 0.8;
-            ctx.fillStyle = 'blue';
-            ctx.fillRect(x, y, w, height);
-            ctx.fillStyle = 'white';
-            ctx.textAlign = 'center';
-            ctx.fillText(entries[i][0], x + w/2, canvas.height - padding + 15);
-            ctx.fillText('$' + value.toFixed(2), x + w/2, y - 5);
-        }
-        ctx.strokeStyle = 'white';
-        ctx.beginPath();
-        ctx.moveTo(padding, canvas.height - padding);
-        ctx.lineTo(padding, padding);
-        ctx.lineTo(canvas.width - padding, canvas.height - padding);
-        ctx.stroke();
-        ctx.fillStyle = 'white';
-        ctx.textAlign = 'center';
-        ctx.fillText('Top Profits by Stock', canvas.width/2, 15);
+        let maxVal = -Infinity, minVal = Infinity, allPoints = [];
+        openPositions.forEach(pos=>{
+            const startIdx = dataset.findIndex(r=>r.company===pos.company && r.date===pos.buy_date);
+            const history = dataset.filter((r,idx)=>r.company===pos.company && idx>=startIdx);
+            const pts = history.map(h=>({date:h.date, pct:(h.price-pos.buy_price)/pos.buy_price*100}));
+            allPoints.push({company:pos.company, pts});
+            pts.forEach(p=>{ if(p.pct>maxVal) maxVal=p.pct; if(p.pct<minVal) minVal=p.pct; });
+        });
+        const yScale = (canvas.height - padding*2) / (maxVal - minVal || 1);
+        allPoints.forEach(obj=>{
+            const pts = obj.pts;
+            const xScale = (canvas.width - padding*2) / (pts.length-1 || 1);
+            ctx.beginPath();
+            const color = '#' + Math.floor(Math.random()*0xffffff).toString(16).padStart(6,'0');
+            ctx.strokeStyle = color;
+            for(let i=0;i<pts.length;i++){
+                const x = padding + i*xScale;
+                const y = canvas.height - padding - (pts[i].pct - minVal)*yScale;
+                if(i===0) ctx.moveTo(x,y); else ctx.lineTo(x,y);
+            }
+            ctx.stroke();
+        });
     }
 });
 </script>
