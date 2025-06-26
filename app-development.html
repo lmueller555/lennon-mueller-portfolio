@@ -53,10 +53,10 @@
         <label for="companySelect">Select Company</label>
         <select id="companySelect"></select>
     </div>
-    <canvas id="chart" width="800" height="400"></canvas>
+    <canvas id="chart" width="900" height="500"></canvas>
     <h3 style="text-align:center;">Open Positions</h3>
     <div id="openContainer" style="overflow-x:auto;"></div>
-    <canvas id="openChart" width="600" height="400"></canvas>
+    <canvas id="openChart" width="700" height="500"></canvas>
 </div>
 <script>
 document.addEventListener('DOMContentLoaded', function() {
@@ -154,7 +154,7 @@ document.addEventListener('DOMContentLoaded', function() {
         if(!selected){
             const vals = equityCurve.map(p=>p.value);
             const maxVal = Math.max(...vals); const minVal = Math.min(...vals);
-            const padding = 40;
+            const padding = 60;
             const xScale = (canvas.width - padding*2) / (equityCurve.length-1);
             const yScale = (canvas.height - padding*2) / (maxVal - minVal || 1);
             ctx.strokeStyle = '#00BFFF';
@@ -196,7 +196,7 @@ document.addEventListener('DOMContentLoaded', function() {
             history.sort((a,b)=> new Date(a.date)-new Date(b.date));
             const vals = history.map(h=>h.price);
             const maxVal = Math.max(...vals); const minVal = Math.min(...vals);
-            const padding = 40;
+            const padding = 60;
             const xScale = (canvas.width - padding*2) / (history.length-1);
             const yScale = (canvas.height - padding*2) / (maxVal - minVal || 1);
             ctx.strokeStyle = '#00BFFF';
@@ -274,7 +274,7 @@ document.addEventListener('DOMContentLoaded', function() {
         const ctx = canvas.getContext('2d');
         ctx.clearRect(0,0,canvas.width,canvas.height);
         if(openPositions.length===0) return;
-        const padding = 40;
+        const padding = 60;
         let maxVal = -Infinity, minVal = Infinity, allPoints = [];
         openPositions.forEach(pos=>{
             const startIdx = dataset.findIndex(r=>r.company===pos.company && r.date===pos.buy_date);
