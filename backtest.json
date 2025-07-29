@@ -1,0 +1,11 @@
+{
+  "equity_curve": [
+    {"date": "2025-01-01", "value": 10000},
+    {"date": "2025-06-01", "value": 12000}
+  ],
+  "final_value": 12000,
+  "roi": 20.0,
+  "win_rate": 50.0,
+  "open_positions": [],
+  "trades": []
+}

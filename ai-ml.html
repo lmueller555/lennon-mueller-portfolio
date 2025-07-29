@@ -95,7 +95,7 @@
     </div>
 <script>
 async function loadDashboard(){
-    const res = await fetch('http://localhost:5000/dashboard');
+    const res = await fetch('combos.json');
     const data = await res.json();
     document.getElementById('summary').innerText =
         `Dataset: ${data.total_customers} customers, Churn Rate: ${(data.churn_rate*100).toFixed(1)}%`;
