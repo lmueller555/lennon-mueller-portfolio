@@ -61,11 +61,12 @@
             animation: blink 0.7s step-end infinite;
         }
 
-        @keyframes blink {
-            0%, 100% { opacity: 1; }
-            50% { opacity: 0; }
-        }
+    @keyframes blink {
+        0%, 100% { opacity: 1; }
+        50% { opacity: 0; }
+    }
     </style>
+    <link rel="stylesheet" href="chatbot.css">
 </head>
 <body>
     <h1 class="title">Lennon Mueller</h1>
@@ -76,6 +77,16 @@
     </nav>
     <div id="homeContainer">
         <p id="typedText"></p>
+    </div>
+
+    <div id="chatbot">
+        <div id="chatHeader">Ask about Lennon</div>
+        <input id="apiKey" type="text" placeholder="OpenAI API Key">
+        <div id="chatMessages"></div>
+        <div id="chatInputArea">
+            <input id="chatInput" type="text" placeholder="Type a message">
+            <button id="sendBtn">Send</button>
+        </div>
     </div>
 
     <script>
@@ -113,5 +124,6 @@
 
         document.addEventListener('DOMContentLoaded', type);
     </script>
+    <script src="chatbot.js"></script>
 </body>
 </html>
