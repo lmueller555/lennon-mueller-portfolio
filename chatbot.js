@@ -54,6 +54,10 @@ function addMessage(sender, text) {
 function sendToOpenAI(userText) {
   chatMessages.push({role:'user', content:userText});
   addMessage('user', userText);
+  if (OPENAI_API_KEY === '__OPENAI_API_KEY__') {
+    addMessage('assistant', 'Error: OpenAI API key not configured.');
+    return;
+  }
   fetch('https://api.openai.com/v1/chat/completions', {
     method: 'POST',
     headers: {
@@ -64,6 +68,10 @@ function sendToOpenAI(userText) {
   })
   .then(r => r.json())
   .then(data => {
+    if (data.error) {
+      addMessage('assistant', 'Error: ' + data.error.message);
+      return;
+    }
     const reply = data.choices?.[0]?.message?.content?.trim() || '';
     chatMessages.push({role:'assistant', content: reply});
     addMessage('assistant', reply);
