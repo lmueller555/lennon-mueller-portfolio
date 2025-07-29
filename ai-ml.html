@@ -72,6 +72,7 @@
             margin: 10px 0;
         }
     </style>
+    <link rel="stylesheet" href="chatbot.css">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body>
@@ -92,6 +93,16 @@
         <p id="highestRule"></p>
         <canvas id="topCombosChart"></canvas>
         <canvas id="lowCombosChart"></canvas>
+    </div>
+
+    <div id="chatbot">
+        <div id="chatHeader">Ask about Lennon</div>
+        <input id="apiKey" type="text" placeholder="OpenAI API Key">
+        <div id="chatMessages"></div>
+        <div id="chatInputArea">
+            <input id="chatInput" type="text" placeholder="Type a message">
+            <button id="sendBtn">Send</button>
+        </div>
     </div>
 <script>
 async function loadDashboard(){
@@ -159,5 +170,6 @@ async function loadDashboard(){
 }
 loadDashboard();
 </script>
+<script src="chatbot.js"></script>
 </body>
 </html>

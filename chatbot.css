@@ -1,0 +1,57 @@
+#chatbot {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  width: 280px;
+  height: 350px;
+  background: white;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  font-family: Arial, sans-serif;
+  display: flex;
+  flex-direction: column;
+  z-index: 9999;
+}
+#chatHeader {
+  background: #333;
+  color: white;
+  padding: 8px;
+  text-align: center;
+  border-top-left-radius: 8px;
+  border-top-right-radius: 8px;
+  font-weight: bold;
+}
+#chatMessages {
+  flex: 1;
+  padding: 8px;
+  overflow-y: auto;
+  font-size: 14px;
+}
+#chatMessages .user {
+  text-align: right;
+  margin-bottom: 6px;
+}
+#chatMessages .assistant {
+  text-align: left;
+  margin-bottom: 6px;
+}
+#chatInputArea {
+  display: flex;
+  padding: 4px;
+  gap: 4px;
+  border-top: 1px solid #ccc;
+}
+#chatInputArea input[type="text"] {
+  flex: 1;
+  padding: 4px;
+  font-size: 14px;
+}
+#sendBtn {
+  padding: 4px 8px;
+}
+#apiKey {
+  width: 100%;
+  padding: 4px;
+  font-size: 12px;
+  border-bottom: 1px solid #ccc;
+}
