@@ -1,5 +1,4 @@
 const CV_TEXT = `Lennon Mueller
-Home/Work: (419) 283-3243
 Email: muellerlennon@gmail.com
  
 
