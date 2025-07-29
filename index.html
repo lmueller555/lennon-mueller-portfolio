@@ -51,6 +51,16 @@
             border-radius: 8px;
             text-align: center;
         }
+
+        #typedText::after {
+            content: '|';
+            animation: blink 0.7s step-end infinite;
+        }
+
+        @keyframes blink {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0; }
+        }
     </style>
 </head>
 <body>
@@ -61,7 +71,43 @@
         <a href="ai-ml.html">AI/ML</a>
     </nav>
     <div id="homeContainer">
-        <p>Welcome to my portfolio. Check out the App Development and AI/ML tabs to see my projects.</p>
+        <p id="typedText"></p>
     </div>
+
+    <script>
+        const messages = [
+            "Welcome to my portfolio!",
+            "Check out the App Development and AI/ML tabs to see my projects.",
+            "Let's build something amazing together!"
+        ];
+
+        let part = 0;
+        let idx = 0;
+        const element = document.getElementById('typedText');
+
+        function type() {
+            const text = messages[idx];
+            if (part < text.length) {
+                element.textContent += text.charAt(part);
+                part++;
+                setTimeout(type, 100);
+            } else {
+                setTimeout(erase, 2000);
+            }
+        }
+
+        function erase() {
+            if (part > 0) {
+                element.textContent = element.textContent.slice(0, -1);
+                part--;
+                setTimeout(erase, 50);
+            } else {
+                idx = (idx + 1) % messages.length;
+                setTimeout(type, 500);
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', type);
+    </script>
 </body>
 </html>
