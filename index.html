@@ -94,7 +94,7 @@
             if (part < text.length) {
                 element.textContent += text.charAt(part);
                 part++;
-                setTimeout(type, 100);
+                setTimeout(type, 50);
             } else {
                 setTimeout(erase, 2000);
             }
@@ -104,7 +104,7 @@
             if (part > 0) {
                 element.textContent = element.textContent.slice(0, -1);
                 part--;
-                setTimeout(erase, 50);
+                setTimeout(erase, 30);
             } else {
                 idx = (idx + 1) % messages.length;
                 setTimeout(type, 500);
