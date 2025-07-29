@@ -74,7 +74,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
     Promise.all([
         fetch(FILE_PATH).then(r => r.text()),
-        fetch('/backtest').then(r => r.json())
+        fetch('backtest.json').then(r => r.json())
     ]).then(([text, bt]) => { parseDataset(text); processBacktest(bt); populateUI(); });
 
     function parseDataset(text){
