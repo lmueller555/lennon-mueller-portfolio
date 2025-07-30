@@ -34,8 +34,8 @@ December 2021-April 2022, H.O.P.E. Dashboard, Indiana Wesleyan University
 ▪ Algorithm and accompanying student academic, demographic, and contact info were built into a Power BI dashboard. Dashboard was then piloted with advising teams and successfully implemented in April 2022. Mass communication feature added to dashboard allowing advisors to quickly identify and reach out to at-risk students. Dashboard is now main tool for advisors and has increased student contacts by more than 10x and reduced time required to identify and reach out to at-risk students by nearly 100%.
 ▪ Risk algorithm was used to produce a risk history for every enrolled student. Risk history displays the daily evolution of a student’s risk score throughout their academic journey and has enabled the use of AI and machine-learning techniques to identify patterns of risk score behavior indicative of future withdrawal. 
 `;
-// OpenAI API key will be injected at build time by the workflow
-const OPENAI_API_KEY = '__OPENAI_API_KEY__';
+// Serverless function endpoint for OpenAI requests
+const API_URL = '/api/chat';
 
 const chatMessages = [
   { role: 'system', content: `You are an enthusiastic assistant for Lennon's portfolio website. Use only the following CV information to answer questions. If you cannot answer based on the CV, say you don't know. CV: ${CV_TEXT}` },
@@ -54,15 +54,10 @@ function addMessage(sender, text) {
 function sendToOpenAI(userText) {
   chatMessages.push({role:'user', content:userText});
   addMessage('user', userText);
-  if (OPENAI_API_KEY === '__OPENAI_API_KEY__') {
-    addMessage('assistant', 'Error: OpenAI API key not configured.');
-    return;
-  }
-  fetch('https://api.openai.com/v1/chat/completions', {
+  fetch(API_URL, {
     method: 'POST',
     headers: {
-      'Content-Type': 'application/json',
-      'Authorization': 'Bearer ' + OPENAI_API_KEY
+      'Content-Type': 'application/json'
     },
     body: JSON.stringify({model:'gpt-4.1-mini', messages: chatMessages})
   })

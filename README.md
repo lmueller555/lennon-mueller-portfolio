@@ -6,13 +6,13 @@ To view the page after the workflow runs, visit the GitHub Pages URL for the rep
 
 The home page includes a dynamic typing animation in the banner. If the page does not immediately show the updated banner, ensure the Pages workflow has completed successfully and refresh your browser.
 
-## Chatbot API Key
+## Chatbot backend
 
-The chatbot on the site now uses an OpenAI API key that is injected during the
-deployment workflow. Set the `OPENAI_API_KEY` secret in the repository so the
-workflow can substitute it into `chatbot.js` when deploying. Only the first
-placeholder occurrence is replaced so the runtime check still detects a missing
-key. The key will be baked into the static site, so ensure you are comfortable
-exposing it publicly. **After adding the secret you must push a commit or
-manually run the Pages workflow** so this replacement step runs and your site
-includes the key.
+The chatbot sends its messages to a Pages Function located in `api/chat.js`.
+This function forwards the request to the OpenAI API using the
+`OPENAI_API_KEY` secret stored in the repository. The key is read on the server
+only, so it never appears in the published JavaScript.
+
+Ensure the `OPENAI_API_KEY` secret is configured in the repository. When the
+Pages workflow runs, the key is made available to the function environment and
+the site can call `/api/chat` to interact with OpenAI.
