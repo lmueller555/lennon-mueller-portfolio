@@ -35,7 +35,8 @@ December 2021-April 2022, H.O.P.E. Dashboard, Indiana Wesleyan University
 ▪ Risk algorithm was used to produce a risk history for every enrolled student. Risk history displays the daily evolution of a student’s risk score throughout their academic journey and has enabled the use of AI and machine-learning techniques to identify patterns of risk score behavior indicative of future withdrawal. 
 `;
 // Serverless function endpoint for OpenAI requests
-const API_URL = '/api/chat';
+// Use a relative path so the function works on GitHub Pages project sites
+const API_URL = 'api/chat';
 
 const chatMessages = [
   { role: 'system', content: `You are an enthusiastic assistant for Lennon's portfolio website. Use only the following CV information to answer questions. If you cannot answer based on the CV, say you don't know. CV: ${CV_TEXT}` },
