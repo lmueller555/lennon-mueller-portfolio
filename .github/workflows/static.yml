@@ -32,7 +32,9 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
       - name: Insert OpenAI API key
-        run: sed -i "s|__OPENAI_API_KEY__|${OPENAI_API_KEY}|g" chatbot.js
+        # Only replace the first placeholder occurrence so the runtime check
+        # for a missing key remains intact
+        run: sed -i "0,/__OPENAI_API_KEY__/s|__OPENAI_API_KEY__|${OPENAI_API_KEY}|" chatbot.js
         env:
           OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
       - name: Setup Pages
