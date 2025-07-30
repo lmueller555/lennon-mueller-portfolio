@@ -13,4 +13,6 @@ deployment workflow. Set the `OPENAI_API_KEY` secret in the repository so the
 workflow can substitute it into `chatbot.js` when deploying. Only the first
 placeholder occurrence is replaced so the runtime check still detects a missing
 key. The key will be baked into the static site, so ensure you are comfortable
-exposing it publicly.
+exposing it publicly. **After adding the secret you must push a commit or
+manually run the Pages workflow** so this replacement step runs and your site
+includes the key.
