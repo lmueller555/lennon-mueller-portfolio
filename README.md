@@ -15,4 +15,5 @@ only, so it never appears in the published JavaScript.
 
 Ensure the `OPENAI_API_KEY` secret is configured in the repository. When the
 Pages workflow runs, the key is made available to the function environment and
-the site can call `/api/chat` to interact with OpenAI.
+the site can call the `api/chat` endpoint (relative to the site root) to
+interact with OpenAI.
