@@ -28,15 +28,11 @@ jobs:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
     runs-on: ubuntu-latest
+    env:
+      OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
     steps:
       - name: Checkout
         uses: actions/checkout@v4
-      - name: Insert OpenAI API key
-        # Only replace the first placeholder occurrence so the runtime check
-        # for a missing key remains intact
-        run: sed -i "0,/__OPENAI_API_KEY__/s|__OPENAI_API_KEY__|${OPENAI_API_KEY}|" chatbot.js
-        env:
-          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
       - name: Setup Pages
         uses: actions/configure-pages@v5
       - name: Upload artifact
